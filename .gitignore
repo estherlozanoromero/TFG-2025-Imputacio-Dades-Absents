@@ -1,0 +1,8 @@
+# Ignore datasets directory
+datasets/
+
+# Ignore zip files
+datasets.zip
+
+# Ignore .vscode directory
+.vscode/
