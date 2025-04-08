@@ -3,14 +3,16 @@
 
 #include <vector>
 
+using namespace std;
+
 class Particle {
 public:
-    std::vector<double> position;
-    std::vector<double> velocity;
-    std::vector<double> best_position;
+    vector<double> position;
+    vector<double> velocity;
+    vector<double> best_position;
     double best_fitness;
 
-    Particle(int dimensions, double lower_bound, double upper_bound);
+    Particle(int dimensions);
 };
 
 #endif // PARTICLE_H

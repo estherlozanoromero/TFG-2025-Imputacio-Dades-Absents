@@ -1,5 +1,5 @@
 #include "PSO.h"
-#include "../utils/fitness.h"
+#include "../utils/Fitness.h"
 #include <iostream>
 #include <cstdlib>
 #include <limits>
@@ -8,18 +8,34 @@ using namespace std;
 
 PSO::PSO(int num_particles, int dimensions, int max_iterations,
          double c1, double c2, double w,
-         double lower_bound, double upper_bound)
+         Initializer* init,
+         const Dataset& dataset)
     : num_particles(num_particles), dimensions(dimensions),
       max_iterations(max_iterations), c1(c1), c2(c2), w(w),
-      lower_bound(lower_bound), upper_bound(upper_bound) {
-
+      initializer(init), dataset(dataset)
+{
     global_best_position.resize(dimensions);
     global_best_fitness = numeric_limits<double>::max();
 
+    vector<double> lower = dataset.getMinAttributes();
+    vector<double> upper = dataset.getMaxAttributes();
+    const auto& raw_data = dataset.getRawData();
+    const auto& target_corr = dataset.computeCorrelationMatrix();
+
     for (int i = 0; i < num_particles; ++i) {
-        Particle p(dimensions, lower_bound, upper_bound);
-        p.best_fitness = evaluateFitness(p.position);
-        p.best_position = p.position;
+
+        
+        vector<double> position = initializer->initialize(dimensions);
+        Particle p(dimensions);
+        p.position = position;
+        p.best_position = position;
+        p.best_fitness = evaluateFitness(position, raw_data, target_corr, lower, upper);
+
+        for (int d = 0; d < dimensions; ++d) {
+            // Random velocity between -1.0 and 1.0
+            p.velocity[d] = ((double)rand() / RAND_MAX) * 2.0 - 1.0;
+        }
+
         swarm.push_back(p);
 
         if (p.best_fitness < global_best_fitness) {
@@ -30,6 +46,11 @@ PSO::PSO(int num_particles, int dimensions, int max_iterations,
 }
 
 void PSO::run() {
+    vector<double> lower = dataset.getMinAttributes();
+    vector<double> upper = dataset.getMaxAttributes();
+    const auto& raw_data = dataset.getRawData();
+    const auto& target_corr = dataset.computeCorrelationMatrix();
+
     for (int iter = 0; iter < max_iterations; ++iter) {
         for (int i = 0; i < num_particles; ++i) {
             Particle& p = swarm[i];
@@ -44,11 +65,16 @@ void PSO::run() {
 
                 p.position[d] += p.velocity[d];
 
-                if (p.position[d] < lower_bound) p.position[d] = lower_bound;
-                if (p.position[d] > upper_bound) p.position[d] = upper_bound;
+                if (p.position[d] < lower[d]) p.position[d] = lower[d];
+                if (p.position[d] > upper[d]) p.position[d] = upper[d];
             }
 
-            double fitness = evaluateFitness(p.position);
+            double fitness = evaluateFitness(p.position, raw_data, target_corr, lower, upper);
+            
+            if (i == 0 && (iter == 0 || iter % 10 == 0)) {
+                cout << "[DEBUG] Fitness de p0 en iter " << iter << ": " << fitness << endl;
+            }
+
             if (fitness < p.best_fitness) {
                 p.best_fitness = fitness;
                 p.best_position = p.position;

@@ -2,13 +2,18 @@
 #define PSO_H
 
 #include "Particle.h"
+#include "../utils/Initializer.h"
+#include "../utils/Dataset.h"
 #include <vector>
+
+using namespace std;
 
 class PSO {
 public:
     PSO(int num_particles, int dimensions, int max_iterations,
         double c1, double c2, double w,
-        double lower_bound, double upper_bound);
+        Initializer* init,
+        const Dataset& dataset);
 
     void run();
 
@@ -17,11 +22,13 @@ private:
     int dimensions;
     int max_iterations;
     double c1, c2, w;
-    double lower_bound, upper_bound;
 
-    std::vector<Particle> swarm;
-    std::vector<double> global_best_position;
+    vector<Particle> swarm;
+    vector<double> global_best_position;
     double global_best_fitness;
+
+    Initializer* initializer;
+    const Dataset& dataset; // 🔥 referencia al dataset
 };
 
-#endif // PSO_H
+#endif
