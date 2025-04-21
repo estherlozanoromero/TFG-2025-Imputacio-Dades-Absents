@@ -2,6 +2,7 @@
 #define PARTICLE_H
 
 #include <vector>
+#include <limits>
 
 using namespace std;
 

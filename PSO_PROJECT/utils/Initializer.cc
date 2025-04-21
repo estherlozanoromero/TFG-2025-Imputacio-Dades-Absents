@@ -1,5 +1,5 @@
 #include "Initializer.h"
-#include <cstdlib>
+
 
 vector<double> RandomInitializer::initialize(int dim) {
     vector<double> position(dim);
@@ -10,20 +10,19 @@ vector<double> RandomInitializer::initialize(int dim) {
 }
 
 
-MeanRandomInitializer::MeanRandomInitializer(const vector<double>& means,
-                                             const vector<double>& mins,
-                                             const vector<double>& maxs,
+MeanRandomInitializer::MeanRandomInitializer(const Dataset& dataset,
                                              double ratio)
-    : attribute_means(means), min_values(mins), max_values(maxs), random_ratio(ratio) {}
+    : data(dataset), random_ratio(ratio) {}
 
-vector<double> MeanRandomInitializer::initialize(int dim) {
-    vector<double> position(dim);
-    for (int i = 0; i < dim; ++i) {
+vector<double> MeanRandomInitializer::initialize(int size) {
+    vector<double> position(size);
+    vector<int> missing_values_cols = data.getMissingCols();
+    for (int i = 0; i < size; ++i) {
         double r = static_cast<double>(rand()) / RAND_MAX;
         if (r < random_ratio) {
-            position[i] = min_values[i] + r * (max_values[i] - min_values[i]);
+            position[i] = data.getMinAttributeAt(missing_values_cols[i]) + r * (data.getMaxAttributeAt(missing_values_cols[i]) - data.getMinAttributeAt(missing_values_cols[i]));
         } else {
-            position[i] = attribute_means[i];
+            position[i] = data.getMeanAttributeAt(missing_values_cols[i]);
         }
     }
     return position;

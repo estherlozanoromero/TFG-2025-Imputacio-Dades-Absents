@@ -4,11 +4,13 @@ CXXFLAGS = -std=c++11 -Wall -I. -I./pso -I./utils
 
 # Source files
 SRCS = main.cc \
-       pso/PSO.cc \
-       pso/Particle.cc \
-       utils/Fitness.cc \
+       utils/Utils.cc \
        utils/Initializer.cc \
-       utils/Dataset.cc
+       utils/Dataset.cc  \
+       pso/Particle.cc \
+       pso/Fitness.cc \
+       pso/PSO.cc 
+       
 
 # Object files
 OBJS = $(SRCS:.cc=.o)

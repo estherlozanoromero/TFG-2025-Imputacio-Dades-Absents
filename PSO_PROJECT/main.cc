@@ -1,6 +1,7 @@
 #include "pso/PSO.h"
 #include "utils/Initializer.h"
 #include "utils/Dataset.h"
+#include "utils/Utils.h"
 #include <ctime>
 #include <cstdlib>
 #include <vector>
@@ -46,7 +47,7 @@ int main(int argc, char* argv[]) {
     Dataset dataset(dataset_path);
     dataset.load();
 
-    int missing = dataset.countMissingValues();
+    int missing = dataset.numMissingValues();
     const auto& clean_data = dataset.getCleanData();
     int dimensions = clean_data[0].size();
 
@@ -54,16 +55,9 @@ int main(int argc, char* argv[]) {
     cout << "[INFO] Rows with no missing values: " << clean_data.size() << endl;
     cout << "[INFO] Correlation matrix [" << dimensions << "x" << dimensions << "] computed.\n";
 
-    // Calculate means, min and max per attribute
-    vector<double> means(dimensions, 0.0);
-    for (const auto& row : clean_data)
-        for (int j = 0; j < dimensions; ++j)
-            means[j] += row[j];
-    for (int j = 0; j < dimensions; ++j)
-        means[j] /= clean_data.size();
-
     const vector<double> min_values = dataset.getMinAttributes();
     const vector<double> max_values = dataset.getMaxAttributes();
+    const vector<double> mean_values = dataset.getMeansAttributes();
 
     // Choose initializer
     Initializer* initializer = nullptr;
@@ -72,7 +66,7 @@ int main(int argc, char* argv[]) {
         initializer = new RandomInitializer();
     } else {
         cout << "[INFO] Using MeanRandomInitializer\n";
-        initializer = new MeanRandomInitializer(means, min_values, max_values, ratio_random);
+        initializer = new MeanRandomInitializer(dataset, ratio_random);
     }
 
     // Create and run PSO

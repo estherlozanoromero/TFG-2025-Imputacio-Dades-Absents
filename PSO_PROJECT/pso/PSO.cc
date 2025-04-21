@@ -1,8 +1,4 @@
 #include "PSO.h"
-#include "../utils/Fitness.h"
-#include <iostream>
-#include <cstdlib>
-#include <limits>
 
 using namespace std;
 
@@ -17,10 +13,10 @@ PSO::PSO(int num_particles, int dimensions, int max_iterations,
     global_best_position.resize(dimensions);
     global_best_fitness = numeric_limits<double>::max();
 
-    vector<double> lower = dataset.getMinAttributes();
-    vector<double> upper = dataset.getMaxAttributes();
+    vector<double> min_value_per_attribute = dataset.getMinAttributes();
+    vector<double> max_value_per_attribute = dataset.getMaxAttributes();
     const auto& raw_data = dataset.getRawData();
-    const auto& target_corr = dataset.computeCorrelationMatrix();
+    const auto& target_corr = dataset.getCorrelationMatrix();
 
     for (int i = 0; i < num_particles; ++i) {
 
@@ -29,7 +25,7 @@ PSO::PSO(int num_particles, int dimensions, int max_iterations,
         Particle p(dimensions);
         p.position = position;
         p.best_position = position;
-        p.best_fitness = evaluateFitness(position, raw_data, target_corr, lower, upper);
+        p.best_fitness = evaluateFitness(p, dataset);
 
         for (int d = 0; d < dimensions; ++d) {
             // Random velocity between -1.0 and 1.0
@@ -46,10 +42,10 @@ PSO::PSO(int num_particles, int dimensions, int max_iterations,
 }
 
 void PSO::run() {
-    vector<double> lower = dataset.getMinAttributes();
-    vector<double> upper = dataset.getMaxAttributes();
+    vector<double> min_value_per_attribute = dataset.getMinAttributes();
+    vector<double> max_value_per_attribute = dataset.getMaxAttributes();
     const auto& raw_data = dataset.getRawData();
-    const auto& target_corr = dataset.computeCorrelationMatrix();
+    const auto& target_corr = dataset.getCorrelationMatrix();
 
     for (int iter = 0; iter < max_iterations; ++iter) {
         for (int i = 0; i < num_particles; ++i) {
@@ -65,11 +61,11 @@ void PSO::run() {
 
                 p.position[d] += p.velocity[d];
 
-                if (p.position[d] < lower[d]) p.position[d] = lower[d];
-                if (p.position[d] > upper[d]) p.position[d] = upper[d];
+                if (p.position[d] < min_value_per_attribute[d]) p.position[d] = min_value_per_attribute[d];
+                if (p.position[d] > max_value_per_attribute[d]) p.position[d] = max_value_per_attribute[d];
             }
 
-            double fitness = evaluateFitness(p.position, raw_data, target_corr, lower, upper);
+            double fitness = evaluateFitness(p, dataset);
             
             if (i == 0 && (iter == 0 || iter % 10 == 0)) {
                 cout << "[DEBUG] Fitness de p0 en iter " << iter << ": " << fitness << endl;

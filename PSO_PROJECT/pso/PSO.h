@@ -2,8 +2,13 @@
 #define PSO_H
 
 #include "Particle.h"
+#include "Fitness.h"
 #include "../utils/Initializer.h"
 #include "../utils/Dataset.h"
+
+#include <iostream>
+#include <cstdlib>
+#include <limits>
 #include <vector>
 
 using namespace std;

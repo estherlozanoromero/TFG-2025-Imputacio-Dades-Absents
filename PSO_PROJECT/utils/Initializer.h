@@ -1,7 +1,11 @@
 #ifndef INITIALIZER_H
 #define INITIALIZER_H
 
+#include <Dataset.h>
+
 #include <vector>
+#include <cstdlib>
+#include <iostream>
 
 using namespace std;
 
@@ -18,17 +22,13 @@ public:
 
 class MeanRandomInitializer : public Initializer {
     public:
-        MeanRandomInitializer(const vector<double>& means,
-                              const vector<double>& mins,
-                              const vector<double>& maxs,
+        MeanRandomInitializer(const Dataset& data,
                               double ratio);
     
-        vector<double> initialize(int dim) override;
+        vector<double> initialize(int size) override;
     
     private:
-        vector<double> attribute_means;
-        vector<double> min_values;
-        vector<double> max_values;
+        Dataset data;
         double random_ratio;
 };
 

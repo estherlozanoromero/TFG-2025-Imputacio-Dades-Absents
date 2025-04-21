@@ -1,5 +1,4 @@
 #include "Particle.h"
-#include <limits>
 
 Particle::Particle(int dimensions) {
     position.resize(dimensions);           
