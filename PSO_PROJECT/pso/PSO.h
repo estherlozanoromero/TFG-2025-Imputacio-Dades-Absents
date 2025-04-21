@@ -27,13 +27,14 @@ private:
     int dimensions;
     int max_iterations;
     double c1, c2, w;
+    
+    Initializer* initializer;
+    const Dataset& dataset; 
 
     vector<Particle> swarm;
     vector<double> global_best_position;
     double global_best_fitness;
-
-    Initializer* initializer;
-    const Dataset& dataset; // 🔥 referencia al dataset
+    double randomBetween(double min, double max);
 };
 
 #endif

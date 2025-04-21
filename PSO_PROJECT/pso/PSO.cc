@@ -1,5 +1,4 @@
 #include "PSO.h"
-
 using namespace std;
 
 PSO::PSO(int num_particles, int dimensions, int max_iterations,
@@ -15,6 +14,7 @@ PSO::PSO(int num_particles, int dimensions, int max_iterations,
 
     vector<double> min_value_per_attribute = dataset.getMinAttributes();
     vector<double> max_value_per_attribute = dataset.getMaxAttributes();
+    vector<int> missing_values_cols = dataset.getMissingCols();
     const auto& raw_data = dataset.getRawData();
     const auto& target_corr = dataset.getCorrelationMatrix();
 
@@ -28,8 +28,8 @@ PSO::PSO(int num_particles, int dimensions, int max_iterations,
         p.best_fitness = evaluateFitness(p, dataset);
 
         for (int d = 0; d < dimensions; ++d) {
-            // Random velocity between -1.0 and 1.0
-            p.velocity[d] = ((double)rand() / RAND_MAX) * 2.0 - 1.0;
+            double range = max_value_per_attribute[missing_values_cols[d]] - min_value_per_attribute[missing_values_cols[d]];
+            p.velocity[d] = randomBetween(-range, range);
         }
 
         swarm.push_back(p);
@@ -44,6 +44,7 @@ PSO::PSO(int num_particles, int dimensions, int max_iterations,
 void PSO::run() {
     vector<double> min_value_per_attribute = dataset.getMinAttributes();
     vector<double> max_value_per_attribute = dataset.getMaxAttributes();
+    vector<int> missing_values_cols = dataset.getMissingCols();
     const auto& raw_data = dataset.getRawData();
     const auto& target_corr = dataset.getCorrelationMatrix();
 
@@ -54,15 +55,22 @@ void PSO::run() {
             for (int d = 0; d < dimensions; ++d) {
                 double r1 = static_cast<double>(rand()) / RAND_MAX;
                 double r2 = static_cast<double>(rand()) / RAND_MAX;
+                double range = max_value_per_attribute[missing_values_cols[d]] - min_value_per_attribute[missing_values_cols[d]];
+                double max_vel = 0.2 * range;
 
                 p.velocity[d] = w * p.velocity[d]
-                              + c1 * r1 * (p.best_position[d] - p.position[d])
-                              + c2 * r2 * (global_best_position[d] - p.position[d]);
+                            + c1 * r1 * (p.best_position[d] - p.position[d])
+                            + c2 * r2 * (global_best_position[d] - p.position[d]);
+
+                // Clipping de velocidad
+                if (p.velocity[d] > max_vel) p.velocity[d] = max_vel;
+                if (p.velocity[d] < -max_vel) p.velocity[d] = -max_vel;
 
                 p.position[d] += p.velocity[d];
 
-                if (p.position[d] < min_value_per_attribute[d]) p.position[d] = min_value_per_attribute[d];
-                if (p.position[d] > max_value_per_attribute[d]) p.position[d] = max_value_per_attribute[d];
+                // Asegurar que p.position[d] no se salga de los límites
+                if (p.position[d] < min_value_per_attribute[missing_values_cols[d]]) p.position[d] = min_value_per_attribute[missing_values_cols[d]];
+                if (p.position[d] > max_value_per_attribute[missing_values_cols[d]]) p.position[d] = max_value_per_attribute[missing_values_cols[d]];
             }
 
             double fitness = evaluateFitness(p, dataset);
@@ -84,4 +92,8 @@ void PSO::run() {
 
         cout << "Iteration " << iter + 1 << " - Global Best Fitness: " << global_best_fitness << endl;
     }
+}
+
+double PSO::randomBetween(double min, double max) {
+    return min + static_cast<double>(rand()) / RAND_MAX * (max - min);
 }
