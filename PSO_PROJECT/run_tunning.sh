@@ -1,42 +1,41 @@
 #!/bin/bash
 
-# ========== CONFIG ==========
-
+# ========== CONFIGURACIÓN ==========
 EXEC="./pso_imputation"
 MAKE_CMD="make"
 DATASETS_DIR="../datasets"
-OUT_DIR="../dataset_out"
-CORR_DIR="../output_correlations"
-RESULTS_DIR="../results"
+OUT_DIR="../out/dataset_out"
+CORR_DIR="../out/output_correlations"
+RESULTS_DIR="../out/results"
 SUMMARY_FILE="$RESULTS_DIR/summary.csv"
 
-# Tuning params
-PARTICLES_LIST=(20 40 60)
-ITERATIONS_LIST=(30 50 80)
+# Crear carpetas si no existen
+mkdir -p "$OUT_DIR" "$CORR_DIR" "$RESULTS_DIR"
+
+# ========== PARÁMETROS DE TUNING ==========
+PARTICLES_LIST=(20 40)
+ITERATIONS_LIST=(30 60)
 C1_LIST=(1.2 1.5)
 C2_LIST=(1.2 1.5)
 W_LIST=(0.5 0.7)
 RATIO_LIST=(0.3 0.5)
 INIT_TYPES=(1 2)
 
-# ========== SETUP ==========
-
-mkdir -p "$OUT_DIR" "$CORR_DIR" "$RESULTS_DIR"
-
-echo "[INFO] Compiling project..."
-$MAKE_CMD || { echo "[ERROR] Compilation failed"; exit 1; }
-
-echo "[INFO] Writing summary to $SUMMARY_FILE"
-echo "dataset,particles,iterations,c1,c2,w,ratio,init_type,time_sec,fitness" > "$SUMMARY_FILE"
-
-# ========== FUNCTION: SELECT REPRESENTATIVE DATASETS ==========
-
+# Filtra datasets representativos
 select_datasets() {
-    ls "$DATASETS_DIR"/*.csv | grep "_input_\\.csv$" | grep -E "rows_(500|1000|5000|10000)_columns_(20|100|500)_comp_0\\.[2-5]_" | sort
+    ls "$DATASETS_DIR"/*.csv | grep "_input_\\.csv$" | grep -E "rows_(1000|5000)_columns_(20|100|500)_comp_0\\.[2-4]_" | sort
 }
 
-# ========== MAIN LOOP ==========
+# ========== COMPILACIÓN ==========
+echo "[INFO] Compiling with $MAKE_CMD..."
+$MAKE_CMD || { echo "[ERROR] Compilation failed"; exit 1; }
 
+# Encabezado CSV (si no existe)
+if [ ! -f "$SUMMARY_FILE" ]; then
+    echo "dataset,particles,iterations,c1,c2,w,ratio,init_type,time_sec,fitness" > "$SUMMARY_FILE"
+fi
+
+# ========== BUCLE PRINCIPAL ==========
 for dataset in $(select_datasets); do
     base_name=$(basename "$dataset" .csv)
 
@@ -74,4 +73,4 @@ for dataset in $(select_datasets); do
     done
 done
 
-echo "[INFO] Tuning completed. Summary saved to $SUMMARY_FILE"
+echo "[INFO] Tuning finished. Results in $SUMMARY_FILE"

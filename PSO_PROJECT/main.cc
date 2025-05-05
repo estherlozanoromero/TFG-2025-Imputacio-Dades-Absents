@@ -88,15 +88,15 @@ int main(int argc, char* argv[]) {
                     "_i" + to_string(init_type);
 
     // Ensure required output directories exist
-    ensureDirectory("dataset_out");
-    ensureDirectory("output_correlations");
-    ensureDirectory("results");
+    ensureDirectory("../out/dataset_out");
+    ensureDirectory("../out/output_correlations");
+    ensureDirectory("../out/results");
 
     // Define output file paths
-    string out_csv          = "dataset_out/" + base_no_ext + suffix + "_imputed.csv";
-    string out_corr_orig    = "output_correlations/" + base_no_ext + suffix + "_corr_original.csv";
-    string out_corr_imputed = "output_correlations/" + base_no_ext + suffix + "_corr_imputed.csv";
-    string result_summary   = "results/summary.csv";
+    string out_csv          = "../out/dataset_out/" + base_no_ext + suffix + "_imputed.csv";
+    string out_corr_orig    = "../out/output_correlations/" + base_no_ext + suffix + "_corr_original.csv";
+    string out_corr_imputed = "../out/output_correlations/" + base_no_ext + suffix + "_corr_imputed.csv";
+    string result_summary   = "../out/results/summary.csv";
 
     // Start measuring execution time
     auto start_time = high_resolution_clock::now();
@@ -152,10 +152,26 @@ int main(int argc, char* argv[]) {
 
     // Save summary statistics to CSV
     double final_fitness = pso.getBestFitness();
+    bool write_header = false;
+    ifstream fcheck(result_summary);
+    if (!fcheck.good()) write_header = true;
+    fcheck.close();
+
     ofstream summary(result_summary, ios::app);
     if (summary.is_open()) {
-        summary << base_no_ext << "," << suffix << ","
-                << final_fitness << "," << duration_sec << "\n";
+        if (write_header) {
+            summary << "dataset,particles,iterations,c1,c2,w,ratio,init_type,time_sec,fitness\n";
+        }
+        summary << base_no_ext << ","
+                << num_particles << ","
+                << max_iterations << ","
+                << c1 << ","
+                << c2 << ","
+                << w << ","
+                << ratio_random << ","
+                << init_type << ","
+                << fixed << setprecision(4) << duration_sec << ","
+                << final_fitness << "\n";
         summary.close();
     } else {
         cerr << "[ERROR] Could not write to results/summary.csv\n";
