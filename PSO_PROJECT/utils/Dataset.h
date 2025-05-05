@@ -1,27 +1,30 @@
 #ifndef DATASET_H
 #define DATASET_H
 
-#include "Utils.h"
-
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <cmath>
-#include <limits>
-#include <algorithm>
 #include <vector>
 #include <string>
 
 using namespace std;
 
+class Utils;  // Forward declaration
+
 class Dataset {
 public:
-    Dataset(const string& filepath);
-    
+    explicit Dataset(const string& filepath);
+
+    // Loads data from the CSV file and processes it
     void load();
-    void computeCorrelationMatrix();
+
+    // Export data
+    void exportImputedData(const vector<double>& imputed_values, const string& output_path);
+
+    // Export Correlations Matrix
+    void exportCorrelationMatrix(const vector<vector<double>>& matrix, const string& out_path);
+
+    // Returns number of missing values in the dataset
     int numMissingValues();
 
+    // Getters
     vector<vector<double>> getCleanData() const;
     vector<vector<double>> getRawData() const;
     vector<vector<double>> getCorrelationMatrix() const;
@@ -36,7 +39,7 @@ public:
 
     vector<int> getMissingRows() const;
     vector<int> getMissingCols() const;
-    
+
 private:
     string filepath;
     vector<vector<double>> raw_data;
@@ -46,10 +49,11 @@ private:
     vector<double> min_attributes;
     vector<double> max_attributes;
     vector<double> mean_attributes;
-    
-    vector<int> missing_row_indices;              
-    vector<int> missing_col_indices;  
 
+    vector<int> missing_row_indices;
+    vector<int> missing_col_indices;
+
+    // Helper to detect missing tokens like "", "nan", etc.
     bool isMissingValue(const string& val) const;
 };
 

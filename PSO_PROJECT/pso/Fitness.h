@@ -12,6 +12,8 @@
 
 using namespace std;
 
-double evaluateFitness(const Particle& p, const Dataset& dataset);
+// Evaluates the fitness of a particle based on the MSE of correlation matrices.
+// If active_attributes > 0, it only compares the top-left submatrix.
+double evaluateFitness(const Particle& p, const Dataset& dataset, int active_attributes = 0);
 
 #endif
