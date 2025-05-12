@@ -17,6 +17,6 @@ echo "[SLURM] Job started on $(hostname) at $(date)"
 cd "$HOME"
 
 # Lanza el script bash
-bash run_tunning.sh
+bash run_tuning.sh
 
 echo "[SLURM] Job finished at $(date)"
