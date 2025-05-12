@@ -73,6 +73,7 @@ int main(int argc, char* argv[]) {
     double ratio_random   = args.count("-r") ? stod(args["-r"]) : 0.5;
     int init_type         = args.count("-i") ? stoi(args["-i"]) : 2;
     int active_attributes = args.count("-a") ? stoi(args["-a"]) : 0;
+    double v_ratio = args.count("-v") ? stod(args["-v"]) : 0.2;
 
     // Extract filename base (remove path and extension)
     string base_name = dataset_path.substr(dataset_path.find_last_of("/\\") + 1);
@@ -80,23 +81,26 @@ int main(int argc, char* argv[]) {
 
     // Encode tuning parameters into a suffix for output filenames
     string suffix = "_p" + to_string(num_particles) +
-                    "_m" + to_string(max_iterations) +
-                    "_c1" + to_string(static_cast<int>(c1 * 10)) +
-                    "_c2" + to_string(static_cast<int>(c2 * 10)) +
-                    "_w" + to_string(static_cast<int>(w * 10)) +
-                    "_r" + to_string(static_cast<int>(ratio_random * 10)) +
-                    "_i" + to_string(init_type);
+                "_m" + to_string(max_iterations) +
+                "_c1" + to_string(static_cast<int>(c1 * 10)) +
+                "_c2" + to_string(static_cast<int>(c2 * 10)) +
+                "_w" + to_string(static_cast<int>(w * 10)) +
+                "_r" + to_string(static_cast<int>(ratio_random * 10)) +
+                "_i" + to_string(init_type) +
+                "_v" + to_string(static_cast<int>(v_ratio * 100));
+
 
     // Ensure required output directories exist
-    ensureDirectory("../out/dataset_out");
-    ensureDirectory("../out/output_correlations");
-    ensureDirectory("../out/results");
+    ensureDirectory("out");
+    ensureDirectory("out/dataset_out");
+    ensureDirectory("out/output_correlations");
+    ensureDirectory("out/results");
 
     // Define output file paths
-    string out_csv          = "../out/dataset_out/" + base_no_ext + suffix + "_imputed.csv";
-    string out_corr_orig    = "../out/output_correlations/" + base_no_ext + suffix + "_corr_original.csv";
-    string out_corr_imputed = "../out/output_correlations/" + base_no_ext + suffix + "_corr_imputed.csv";
-    string result_summary   = "../out/results/summary.csv";
+    string out_csv          = "out/dataset_out/" + base_no_ext + suffix + "_imputed.csv";
+    string out_corr_orig    = "out/output_correlations/" + base_no_ext + suffix + "_corr_original.csv";
+    string out_corr_imputed = "out/output_correlations/" + base_no_ext + suffix + "_corr_imputed.csv";
+    string result_summary   = "out/results/summary.csv";
 
     // Start measuring execution time
     auto start_time = high_resolution_clock::now();
@@ -136,7 +140,7 @@ int main(int argc, char* argv[]) {
     }
 
     // Run Particle Swarm Optimization
-    PSO pso(num_particles, dimensions, max_iterations, c1, c2, w, initializer, dataset, active_attributes);
+    PSO pso(num_particles, dimensions, max_iterations, c1, c2, w, v_ratio, active_attributes, initializer, dataset);
     pso.run();
 
     // Stop measuring time
@@ -152,24 +156,44 @@ int main(int argc, char* argv[]) {
 
     // Save summary statistics to CSV
     double final_fitness = pso.getBestFitness();
+
+    // Dataset statistics
+    int rows = dataset.getRawData().size();
+    int cols = dataset.getRawData()[0].size();
+    double missing_percent = 100.0 * missing / (rows * cols);
+
+    // Compute file size in MB (no stat, use ifstream)
+    ifstream in(dataset_path, ios::binary | ios::ate);
+    double dataset_size_MB = in.is_open() ? static_cast<double>(in.tellg()) / (1024 * 1024) : 0.0;
+    in.close();
+
+    // Get human-readable name for initializer
+    string init_name = (init_type == 0) ? "Random" :
+                    (init_type == 1) ? "BoundedRandom" :
+                    "MeanRandom";
+
+    // Check if we need to write header
     bool write_header = false;
     ifstream fcheck(result_summary);
     if (!fcheck.good()) write_header = true;
     fcheck.close();
 
+    // Append to summary file
     ofstream summary(result_summary, ios::app);
     if (summary.is_open()) {
         if (write_header) {
-            summary << "dataset,particles,iterations,c1,c2,w,ratio,init_type,time_sec,fitness\n";
+            summary << "dataset,rows,columns,missing_values,missing_percent,file_MB,"
+                    "particles,iterations,c1,c2,w,ratio,init_type,init_name,velocity_ratio,"
+                    "time_sec,fitness\n";
         }
         summary << base_no_ext << ","
-                << num_particles << ","
-                << max_iterations << ","
-                << c1 << ","
-                << c2 << ","
-                << w << ","
-                << ratio_random << ","
-                << init_type << ","
+                << rows << "," << cols << "," << missing << ","
+                << fixed << setprecision(2) << missing_percent << ","
+                << fixed << setprecision(2) << dataset_size_MB << ","
+                << num_particles << "," << max_iterations << ","
+                << c1 << "," << c2 << "," << w << ","
+                << ratio_random << "," << init_type << "," << init_name << ","
+                << v_ratio << ","
                 << fixed << setprecision(4) << duration_sec << ","
                 << final_fitness << "\n";
         summary.close();

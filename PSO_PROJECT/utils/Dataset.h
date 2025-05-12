@@ -32,6 +32,8 @@ public:
     double getMinAttributeAt(int pos) const;
     double getMaxAttributeAt(int pos) const;
     double getMeanAttributeAt(int pos) const;
+    int getMissingRowAt(int pos) const;
+    int getMissingColAt(int pos) const;
 
     vector<double> getMinAttributes() const;
     vector<double> getMaxAttributes() const;

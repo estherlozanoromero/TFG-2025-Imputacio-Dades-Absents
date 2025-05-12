@@ -1,8 +1,12 @@
 # Ignore datasets directory
-datasets/
+PSO_PROJECT/datasets/
+
+# Ignore out directory
+PSO_PROJECT/out/
 
 # Ignore zip files
 datasets.zip
+pso.zip
 
 # Ignore .vscode directory
 .vscode/

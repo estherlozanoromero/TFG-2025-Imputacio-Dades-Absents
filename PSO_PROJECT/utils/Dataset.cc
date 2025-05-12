@@ -113,11 +113,11 @@ void Dataset::exportImputedData(const vector<double>& imputed_values, const stri
 
     // Create output folder if needed
     struct stat st;
-    if (stat("dataset_out", &st) != 0) {
+    if (stat("out/dataset_out", &st) != 0) {
     #ifdef _WIN32
-        if (_mkdir("dataset_out") != 0) 
+        if (_mkdir("out/dataset_out") != 0) 
     #else
-        if (mkdir("dataset_out", 0700) != 0) 
+        if (mkdir("out/dataset_out", 0700) != 0) 
     #endif
         {
             cerr << "[ERROR] Could not create folder 'dataset_out'" << endl;
@@ -194,6 +194,8 @@ vector<vector<double>> Dataset::getCorrelationMatrix() const { return correlatio
 double Dataset::getMinAttributeAt(int pos) const { return min_attributes[pos]; }
 double Dataset::getMaxAttributeAt(int pos) const { return max_attributes[pos]; }
 double Dataset::getMeanAttributeAt(int pos) const { return mean_attributes[pos]; }
+int Dataset::getMissingRowAt(int pos) const { return missing_row_indices[pos]; }
+int Dataset::getMissingColAt(int pos) const { return missing_col_indices[pos]; }
 
 vector<double> Dataset::getMinAttributes() const { return min_attributes; }
 vector<double> Dataset::getMaxAttributes() const { return max_attributes; }

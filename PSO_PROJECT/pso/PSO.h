@@ -16,11 +16,15 @@ using namespace std;
 // Particle Swarm Optimization (PSO) class for data imputation
 class PSO {
 public:
-    PSO(int num_particles, int dimensions, int max_iterations,
-        double c1, double c2, double w,
-        Initializer* init,
-        const Dataset& dataset,
-        int active_attributes = 0); // optional limit for correlation comparison
+PSO(int num_particles, 
+    int dimensions, 
+    int max_iterations,
+    double c1, double c2, double w,
+    double velocity_ratio,
+    int active_attributes,
+    Initializer* init,
+    const Dataset& dataset
+);
 
     void run();
     double getBestFitness() const;
@@ -31,11 +35,12 @@ private:
     int num_particles;
     int dimensions;
     int max_iterations;
-    double c1, c2, w;
+    double c1, c2, w, velocity_ratio;
     int active_attributes;
 
     Initializer* initializer;
     const Dataset& dataset;
+    
 
     vector<Particle> swarm;
     vector<double> global_best_position;

@@ -1,14 +1,22 @@
 #include "PSO.h"
 
-PSO::PSO(int num_particles, int dimensions, int max_iterations,
-         double c1, double c2, double w,
-         Initializer* init,
-         const Dataset& dataset,
-         int active_attributes)
-    : num_particles(num_particles), dimensions(dimensions),
-      max_iterations(max_iterations), c1(c1), c2(c2), w(w),
-      initializer(init), dataset(dataset),
-      active_attributes(active_attributes)
+PSO::PSO(int num_particles, 
+        int dimensions, 
+        int max_iterations,
+        double c1, double c2, double w,
+        double velocity_ratio,
+        int active_attributes,
+        Initializer* init,
+        const Dataset& dataset
+    ): 
+        num_particles(num_particles), 
+        dimensions(dimensions),
+        max_iterations(max_iterations), 
+        c1(c1), c2(c2), w(w),
+        velocity_ratio(velocity_ratio),
+        active_attributes(active_attributes),
+        initializer(init), 
+        dataset(dataset)
 {
     global_best_position.resize(dimensions);
     global_best_fitness = numeric_limits<double>::max();
@@ -39,20 +47,20 @@ PSO::PSO(int num_particles, int dimensions, int max_iterations,
 }
 
 void PSO::run() {
-    vector<double> min_value_per_attribute = dataset.getMinAttributes();
-    vector<double> max_value_per_attribute = dataset.getMaxAttributes();
-    vector<int> missing_values_cols = dataset.getMissingCols();
+
 
     for (int iter = 0; iter < max_iterations; ++iter) {
         for (int i = 0; i < num_particles; ++i) {
             Particle& p = swarm[i];
 
             for (int d = 0; d < dimensions; ++d) {
+                double max_value = dataset.getMaxAttributeAt(dataset.getMissingColAt(d));
+                double min_value = dataset.getMinAttributeAt(dataset.getMissingColAt(d));
                 double r1 = static_cast<double>(rand()) / RAND_MAX;
                 double r2 = static_cast<double>(rand()) / RAND_MAX;
 
-                double range = max_value_per_attribute[missing_values_cols[d]] - min_value_per_attribute[missing_values_cols[d]];
-                double max_vel = 0.2 * range;
+                double range = max_value - min_value;
+                double max_vel = velocity_ratio * range;
 
                 p.velocity[d] = w * p.velocity[d]
                               + c1 * r1 * (p.best_position[d] - p.position[d])
@@ -66,10 +74,10 @@ void PSO::run() {
                 p.position[d] += p.velocity[d];
 
                 // Clamp position within valid range
-                if (p.position[d] < min_value_per_attribute[missing_values_cols[d]])
-                    p.position[d] = min_value_per_attribute[missing_values_cols[d]];
-                if (p.position[d] > max_value_per_attribute[missing_values_cols[d]])
-                    p.position[d] = max_value_per_attribute[missing_values_cols[d]];
+                if (p.position[d] < min_value)
+                    p.position[d] = min_value;
+                if (p.position[d] > max_value)
+                    p.position[d] = max_value;
             }
 
             double fitness = evaluateFitness(p, dataset, active_attributes);
