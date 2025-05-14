@@ -53,9 +53,9 @@ int main(int argc, char* argv[]) {
     auto args = parseArgs(argc, argv);
 
     if (args.find("-d") == args.end()) {
-        cerr << "Usage: " << argv[0] << " -d <dataset.csv> "
+        cerr << "Usage: " << argv[0] << " -d <dataset.csv> -o <output_dir_name>"
              << "[-p <particles>] [-m <max_iterations>] "
-             << "[-c1 <c1>] [-c2 <c2>] [-w <inertia>] "
+             << "[-c1 <c1>] [-c2 <c2>] [-w <inertia>] [-v <vel_max_%>]"
              << "[-r <ratio_random>] [-i <init_type 0|1|2>] [-a <active_attributes>]" << endl;
         return 1;
     }
@@ -65,15 +65,18 @@ int main(int argc, char* argv[]) {
 
     // Parse parameters with default values
     string dataset_path   = args["-d"];
+    string out_path       = args["-o"];
     int num_particles     = args.count("-p") ? stoi(args["-p"]) : 30;
     int max_iterations    = args.count("-m") ? stoi(args["-m"]) : 50;
     double c1             = args.count("-c1") ? stod(args["-c1"]) : 1.5;
     double c2             = args.count("-c2") ? stod(args["-c2"]) : 1.5;
     double w              = args.count("-w") ? stod(args["-w"]) : 0.7;
+    double v_ratio        = args.count("-v") ? stod(args["-v"]) : 0.2;
     double ratio_random   = args.count("-r") ? stod(args["-r"]) : 0.5;
     int init_type         = args.count("-i") ? stoi(args["-i"]) : 2;
     int active_attributes = args.count("-a") ? stoi(args["-a"]) : 0;
-    double v_ratio = args.count("-v") ? stod(args["-v"]) : 0.2;
+    
+    
 
     // Extract filename base (remove path and extension)
     string base_name = dataset_path.substr(dataset_path.find_last_of("/\\") + 1);
@@ -91,16 +94,16 @@ int main(int argc, char* argv[]) {
 
 
     // Ensure required output directories exist
-    ensureDirectory("out");
-    ensureDirectory("out/dataset_out");
-    ensureDirectory("out/output_correlations");
-    ensureDirectory("out/results");
+    ensureDirectory(out_path);
+    ensureDirectory(out_path + "/dataset_out");
+    ensureDirectory(out_path +  "/output_correlations");
+    ensureDirectory(out_path + "/results");
 
     // Define output file paths
-    string out_csv          = "out/dataset_out/" + base_no_ext + suffix + "_imputed.csv";
-    string out_corr_orig    = "out/output_correlations/" + base_no_ext + suffix + "_corr_original.csv";
-    string out_corr_imputed = "out/output_correlations/" + base_no_ext + suffix + "_corr_imputed.csv";
-    string result_summary   = "out/results/summary.csv";
+    string out_csv          = out_path + "/dataset_out/" + base_no_ext + suffix + "_imputed.csv";
+    string out_corr_orig    = out_path + "/output_correlations/" + base_no_ext + suffix + "_corr_original.csv";
+    string out_corr_imputed = out_path + "/output_correlations/" + base_no_ext + suffix + "_corr_imputed.csv";
+    string result_summary   = out_path + "/results/summary.csv";
 
     // Start measuring execution time
     auto start_time = high_resolution_clock::now();

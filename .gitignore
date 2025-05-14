@@ -1,5 +1,8 @@
 # Ignore datasets directory
 PSO_PROJECT/datasets/
+PSO_PROJECT/datasets_1/
+PSO_PROJECT/datasets_2/
+PSO_PROJECT/datasets_3/
 PSO_PROJECT/datasets_test/
 
 # Ignore out directory

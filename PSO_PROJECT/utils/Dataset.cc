@@ -111,22 +111,7 @@ void Dataset::exportImputedData(const vector<double>& imputed_values, const stri
         completed_data[row][col] = imputed_values[i];
     }
 
-    // Create output folder if needed
-    struct stat st;
-    if (stat("out/dataset_out", &st) != 0) {
-    #ifdef _WIN32
-        if (_mkdir("out/dataset_out") != 0) 
-    #else
-        if (mkdir("out/dataset_out", 0700) != 0) 
-    #endif
-        {
-            cerr << "[ERROR] Could not create folder 'dataset_out'" << endl;
-            return;
-        
-        }
-    }
-
-    // Write to CSV
+    // Write the CSV
     ofstream out(output_path);
     if (!out.is_open()) {
         cerr << "[ERROR] Cannot open output file: " << output_path << endl;

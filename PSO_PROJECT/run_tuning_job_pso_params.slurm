@@ -1,9 +1,9 @@
 #!/bin/bash
-#SBATCH --job-name=pso_tunning
-#SBATCH --output=slurm_logs/tunning_%j.out
-#SBATCH --error=slurm_logs/tunning_%j.err
-#SBATCH --time=12:00:00
-#SBATCH --partition=short
+#SBATCH --job-name=pso_tuning
+#SBATCH --output=slurm_logs/tuning_%j.out
+#SBATCH --error=slurm_logs/tuning_%j.err
+#SBATCH --time=3-00:00:00
+#SBATCH --partition=medium
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=8G
 
@@ -17,6 +17,6 @@ echo "[SLURM] Job started on $(hostname) at $(date)"
 cd "$HOME"
 
 # Lanza el script bash
-bash run_tuning.sh
+bash run_tuning_particles.sh
 
 echo "[SLURM] Job finished at $(date)"
