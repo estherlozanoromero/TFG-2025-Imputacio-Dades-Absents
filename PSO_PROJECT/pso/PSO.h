@@ -21,7 +21,6 @@ PSO(int num_particles,
     int max_iterations,
     double c1, double c2, double w,
     double velocity_ratio,
-    int active_attributes,
     Initializer* init,
     const Dataset& dataset
 );
@@ -36,7 +35,6 @@ private:
     int dimensions;
     int max_iterations;
     double c1, c2, w, velocity_ratio;
-    int active_attributes;
 
     Initializer* initializer;
     const Dataset& dataset;

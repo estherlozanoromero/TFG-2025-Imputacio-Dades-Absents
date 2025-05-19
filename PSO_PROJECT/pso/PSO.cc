@@ -5,7 +5,6 @@ PSO::PSO(int num_particles,
         int max_iterations,
         double c1, double c2, double w,
         double velocity_ratio,
-        int active_attributes,
         Initializer* init,
         const Dataset& dataset
     ): 
@@ -14,7 +13,6 @@ PSO::PSO(int num_particles,
         max_iterations(max_iterations), 
         c1(c1), c2(c2), w(w),
         velocity_ratio(velocity_ratio),
-        active_attributes(active_attributes),
         initializer(init), 
         dataset(dataset)
 {
@@ -30,7 +28,7 @@ PSO::PSO(int num_particles,
         Particle p(dimensions);
         p.position = position;
         p.best_position = position;
-        p.best_fitness = evaluateFitness(p, dataset, active_attributes);
+        p.best_fitness = evaluateFitness(p, dataset);
 
         for (int d = 0; d < dimensions; ++d) {
             double range = max_value_per_attribute[missing_values_cols[d]] - min_value_per_attribute[missing_values_cols[d]];
@@ -80,7 +78,7 @@ void PSO::run() {
                     p.position[d] = max_value;
             }
 
-            double fitness = evaluateFitness(p, dataset, active_attributes);
+            double fitness = evaluateFitness(p, dataset);
 
             if (i == 0 && (iter == 0 || iter % 10 == 0)) {
                 cout << "[DEBUG] Fitness de p0 en iter " << iter << ": " << fitness << endl;

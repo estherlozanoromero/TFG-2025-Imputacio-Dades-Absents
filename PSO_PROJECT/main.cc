@@ -74,7 +74,6 @@ int main(int argc, char* argv[]) {
     double v_ratio        = args.count("-v") ? stod(args["-v"]) : 0.2;
     double ratio_random   = args.count("-r") ? stod(args["-r"]) : 0.5;
     int init_type         = args.count("-i") ? stoi(args["-i"]) : 2;
-    int active_attributes = args.count("-a") ? stoi(args["-a"]) : 0;
     
     
 
@@ -143,7 +142,7 @@ int main(int argc, char* argv[]) {
     }
 
     // Run Particle Swarm Optimization
-    PSO pso(num_particles, dimensions, max_iterations, c1, c2, w, v_ratio, active_attributes, initializer, dataset);
+    PSO pso(num_particles, dimensions, max_iterations, c1, c2, w, v_ratio, initializer, dataset);
     pso.run();
 
     // Stop measuring time
