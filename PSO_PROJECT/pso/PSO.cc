@@ -107,7 +107,6 @@ vector<vector<double>> PSO::getBestCorrelationMatrix() const {
     Particle best_particle(dimensions);
     best_particle.position = global_best_position;
 
-    // Rellenamos los datos y calculamos la correlación
     vector<vector<double>> data = dataset.getRawData();
     const auto& rows = dataset.getMissingRows();
     const auto& cols = dataset.getMissingCols();
@@ -116,7 +115,7 @@ vector<vector<double>> PSO::getBestCorrelationMatrix() const {
         data[rows[i]][cols[i]] = global_best_position[i];
     }
 
-    // Calcular media
+    // Calculate mean
     int n_cols = data[0].size();
     int n_rows = data.size();
     vector<double> means(n_cols, 0.0);
@@ -126,7 +125,7 @@ vector<vector<double>> PSO::getBestCorrelationMatrix() const {
     for (int j = 0; j < n_cols; ++j)
         means[j] /= n_rows;
 
-    // Calcular correlación
+    // Calculate correlation
     vector<vector<double>> corr(n_cols, vector<double>(n_cols, 1.0));
     Utils utils;
     utils.computeCorrelationMatrix(corr, data, means);

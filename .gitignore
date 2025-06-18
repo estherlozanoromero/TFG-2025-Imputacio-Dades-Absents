@@ -1,5 +1,6 @@
 # Ignore datasets directory
 PSO_PROJECT/datasets*
+ScriptsSLURM/
 RESULTS
 
 # Ignore out directory
