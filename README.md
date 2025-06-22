@@ -66,7 +66,6 @@ make
 | `-v` | Velocitat màxima relativa | 0.2 |
 | `-r` | Percentatge de random en la inicialització híbrida | 0.5 |
 | `-i` | Tipus d'inicialització (`0`, `1`, `2`) | 2 |
-| `-a` | Atributs actius (opcional) | — |
 
 **Exemple d’execució:**
 ```bash
